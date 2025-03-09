@@ -1,0 +1,241 @@
+Students
+Jamal Majadle - 207513722
+Matan Shabi - 319002770
+
+
+Section 1
+@How It Works:
+    - Evaluate Future States: For each possible move, the agent imagines what the game state will be like after making that move.
+    - Use the Game's Score: It looks at the score of each imagined future state.
+        The game's built-in scoring system gives this score, which sums up how good or bad that state is.
+    - Choose the Best Move: The agent selects the move that leads to the highest score.
+
+@ReflexAgent Heuristic:
+    - the basic ReflexAgent uses a straightforward heuristic based on the game's score,
+        without incorporating more complex considerations like distance to food or ghosts
+
+
+
+
+
+
+
+
+
+Section 2
+@Heuristic Parameters:
+    - Distance to the Closest Food: Pacman should get closer to the nearest food.
+    - Distance to the Closest Ghost: Pacman should avoid ghosts.
+    - Distance to the Closest Capsule: Pacman should get closer to capsules.
+    - Number of Remaining Food Pellets: Fewer food pellets are better.
+    - Number of Remaining Capsules: Fewer capsules are better.
+
+@Motivation for the Heuristic Definition:
+    - Distance to the Closest Food: Encourages Pacman to move towards food, increasing the likelihood of eating it and thus scoring points.
+    - Distance to the Closest Ghost: Helps Pacman avoid ghosts to prevent losing the game.
+    - Distance to the Closest Capsule: Encourages Pacman to collect capsules, which can make ghosts edible and safer.
+    - Number of Remaining Food Pellets: Fewer food pellets indicate progress towards winning.
+    - Number of Remaining Capsules: Fewer capsules indicate progress towards a safer game state.
+
+@to sum up:
+    These heuristics should improve the player's performance by guiding Pacman towards food and capsules while avoiding ghosts,
+    which the scoreEvaluationFunction heuristic does not explicitly do.
+
+
+
+
+
+
+
+
+
+Section 3
+@Assumption in Creating the Tree: The primary assumption in creating the tree for the Max-Min algorithm, as described, is that each agent (Pacman and the ghosts) takes turns in a fixed order.
+Specifically, the decision-making order is as follows:
+    - Pacman makes a move (Max layer).
+    - Each ghost makes a move in sequence (Min layers), one after another.
+This fixed-order turn-taking is assumed to repeat until a terminal state (win, lose, or depth limit) is reached.
+
+@Assumption Details:
+    - Fixed Turn Order:The tree assumes that Pacman always moves first, followed by each ghost in a specific sequence.
+    - Sequential Decision Making:Each agent makes its decision based on the game state resulting from the previous agent's move.
+        Pacman considers the current game state, then Ghost 1 makes its move based on Pacman's move, followed by Ghost 2 considering both Pacman's and Ghost 1's moves, and so on.
+    - Independent and Rational Behavior:The ghosts are assumed to act independently and rationally, aiming to minimize Pacman's score. Each ghost tries to optimize its move based on the current game state without collaborating with other ghosts.
+
+@Validity of the Assumption:
+    - True for Many Turn-Based Games: This assumption holds true for many turn-based games where agents take turns in a predefined sequence, such as chess, checkers, and Pac-Man variants.
+    - Limitation in Real-Time or Simultaneous Move Games: In real-time games or scenarios where agents might make decisions simultaneously, this assumption may not hold. In such cases, the model would need to account for simultaneous moves and possible interactions between agents' decisions.
+    - Strategic Complexity: While the fixed-order assumption simplifies the implementation and reasoning about the game tree, it might not capture the full complexity of games where agents' decisions are interdependent or where there is an element of uncertainty or randomness in opponents' behaviors.
+
+@Max-Min algorithm without creating an additional layer for every agent turn: Depth-First Search (DFS) with Memoization
+    - Explanation:DFS with memoization involves traversing the search tree using DFS while storing (memoizing) the results of previously computed states to avoid redundant calculations.
+        * Advantages:
+            1. Avoids Redundant Calculations: Memoization helps in avoiding re-evaluation of states that have already been computed, saving time.
+            2. Memory Efficiency: Typically more memory-efficient than BFS since it stores fewer nodes at any one time.
+        * Disadvantages:
+            1. Memory Usage: Memoization can still lead to high memory usage if the number of unique states is large.
+            2. Complex Implementation: Implementing memoization correctly can be complex and error-prone.
+
+@Max-Min with Additional Layers:
+    - Advantages:
+        1. Clear Structure: Easy to understand and debug.
+        2. Optimal Decisions: Guarantees optimal moves if the entire tree is explored.
+        3. Comprehensive Search: Considers all possible moves and outcomes.
+    - Disadvantages:
+        1. High Computational Cost: Exponential growth in the number of nodes makes it slow.
+        2. Memory Intensive: Requires significant memory to store the search tree.
+        3. Performance Issues: Slow processing times, especially with many agents.
+        4. Limited Depth: Often needs depth limits, which can reduce decision quality.
+        5. Redundant Evaluations: Repeatedly evaluates the same states, leading to inefficiency.
+
+
+
+
+
+
+
+
+
+Section 4
+@Does the new tree structure we defined (how many min layers for each max layer) affect the algorithm Alpha-beta?
+    - Yes, the new tree structure affects the Alpha-Beta algorithm.
+
+@How Alpha-Beta Pruning Works:
+    - Alpha: Best value for Pacman (maximizer).
+    - Beta: Best value for ghosts (minimizers).
+    - Pruning: Eliminates branches that won't affect the final decision.
+
+@New Tree Structure: Each Max layer (Pacman) is followed by multiple Min layers (one for each ghost).
+
+@Impact:
+    - More Min Layers:
+        1. More Pruning: Each ghost's turn offers more opportunities to prune unnecessary branches.
+        2. Complexity: Slightly more complex due to managing multiple Min layers.
+    - Sequential Pruning:
+        1. Efficient Pruning: Early termination if a ghost's move results in a value that can't affect the final outcome.
+        2. Alpha/Beta Updates: More frequent updates as each ghost's move is evaluated.
+    - Efficiency Gains:
+        1. Fewer Nodes: Reduces the number of nodes evaluated, making the algorithm faster.
+        2. Deeper Trees: More opportunities for pruning in deeper trees.
+
+@Summary:
+The new structure with multiple Min layers enhances pruning opportunities, reduces the number of nodes evaluated, and increases efficiency, but adds a bit of complexity to the management of alpha and beta values.
+
+@Differences Between AlphaBetaAgent and MinimaxAgent
+    a. In Terms of Running Time: Yes, the AlphaBetaAgent will generally have a faster running time compared to the MinimaxAgent.
+        - Explanation:
+            1. Alpha-Beta Pruning: The AlphaBetaAgent uses alpha-beta pruning to eliminate branches in the game tree that do not need to be explored because they cannot influence the final decision. This reduces the number of nodes that need to be evaluated.
+            2. Efficiency Gains: By pruning these branches, the AlphaBetaAgent can significantly reduce the number of nodes it examines, leading to faster decision-making.
+                In the best case, alpha-beta pruning can reduce the time complexity from 𝑂(b^d) to 𝑂(b^(d/2)) where b is the branching factor and d is the depth of the tree.
+
+    b. In Terms of Choosing Moves: No, the AlphaBetaAgent and MinimaxAgent should choose the same moves assuming they evaluate the same nodes and the game tree is explored fully.
+        - Explanation:
+            1. Same Decision Process: Both agents use the Minimax decision-making process. The difference lies in the efficiency of the search, not in the criteria for evaluating moves.
+            2. Optimal Moves: If both agents explore the game tree to the same depth, they should theoretically arrive at the same optimal move because alpha-beta pruning does not affect the final outcome of the Minimax algorithm. It simply improves efficiency by cutting off branches that do not need to be evaluated.
+
+
+
+
+
+
+
+
+
+Section 5
+@Changes Compared to Minimax Agents
+    - Decision Process:
+        1. Minimax: Assumes ghosts play optimally to minimize Pacman's score.
+        2. Expectimax: Assumes ghosts play randomly, calculating the average outcome.
+    - Move Evaluation:
+        1. Minimax: Considers the worst-case scenario (optimal ghost moves).
+        2. Expectimax: Considers the average case (random ghost moves).
+
+@Expectation from Results
+    - Performance in Predictable Scenarios:
+        1. Minimax: Might perform worse when ghosts don't play optimally because it overestimates the challenge by always assuming the worst.
+        2. Expectimax: Should perform better when ghosts play randomly as it averages the possible outcomes, aligning more closely with actual game behavior.
+    -Handling Randomness:
+        1. Minimax: Might be overly conservative, leading to suboptimal moves if ghosts are not as threatening as predicted.
+        2. Expectimax: More balanced approach, potentially leading to higher scores in games with random ghost behavior.
+
+@Example Scenarios Supporting Expectations
+    1. Ghosts Moving Randomly:
+        - Scenario: Pacman is near multiple ghosts.
+            * Minimax: Might choose a path that is overly safe, avoiding the area completely.
+            * Expectimax: Might choose a path that is riskier but leads to higher rewards because it averages the potential outcomes, considering that ghosts might move away randomly.
+    2. Sparse Ghosts:
+        - Scenario: Few ghosts spread out over the map.
+            * Minimax: Might still play cautiously, assuming ghosts will converge optimally.
+            * Expectimax: Takes more direct routes to food and power pellets, assuming random movement by ghosts reduces the threat.
+    3. Cornered Pacman:
+        - Scenario: Pacman is cornered by multiple ghosts with limited escape routes.
+            * Minimax: May predict an unavoidable loss if all escape routes are optimally blocked by ghosts.
+            * Expectimax: Might find an escape route considering the probability that not all ghosts will move optimally, leading to a potential survival.
+
+
+
+
+
+
+
+
+
+Section 6
+@Distribution of the Movement of the Spirit:
+The DirectionalGhost class defines a ghost with a strategy to either rush towards Pacman or flee from Pacman when scared.
+The movement distribution of the ghost is determined based on whether it is in an attacking mode or a scared mode.
+
+@Full Strategy:
+    - Attack Mode (Not Scared):
+        1. The ghost prefers to move towards Pacman.
+        2. It calculates the Manhattan distance to Pacman for each possible move.
+        3. The moves that result in the shortest distance to Pacman are given a higher probability (prob_attack).
+        4. The remaining moves are given a lower probability.
+    - Scared Mode:
+        1. The ghost prefers to move away from Pacman.
+        2. It calculates the Manhattan distance to Pacman for each possible move.
+        3. The moves that result in the longest distance from Pacman are given a higher probability (prob_scaredFlee).
+        4. The remaining moves are given a lower probability.
+
+@Example from the dist dictionary:
+    - Attack Mode (Not Scared):
+        1. Prefer Moving Towards Pacman:
+            - Example: Ghost Index: 1, Distribution: {'South': 0.8500000000000001, 'North': 0.04999999999999999, 'East': 0.04999999999999999, 'West': 0.04999999999999999}
+                * The action South has the highest probability (0.85), indicating that moving South minimizes the distance to Pacman. The remaining actions have equal lower probabilities (0.05).
+        2. Equal Distribution for Non-Preferred Actions:
+            - Example: Ghost Index: 1, Distribution: {'South': 0.9, 'North': 0.09999999999999998}
+                * The action South has a very high probability (0.9) because it minimizes the distance to Pacman, while North has a lower probability (0.1).
+    - Scared Mode:
+        1. Prefer Moving Away from Pacman:
+            - Example: Ghost Index: 1, Distribution: {'South': 0.4666666666666667, 'East': 0.4666666666666667, 'West': 0.06666666666666665}
+                * Actions South and East have higher probabilities (0.4667 each), indicating they maximize the distance from Pacman. The action West has a lower probability (0.0667).
+        2. Equal Distribution for Non-Preferred Actions:
+            - Example: Ghost Index: 1, Distribution: {'South': 0.5, 'West': 0.5}
+                * The actions South and West have equal probabilities (0.5 each), suggesting that both actions are equally good for increasing the distance from Pacman.
+
+@Differences Between DirectionalExpectimaxAgent and RandomExpectimaxAgent
+    1. Ghost Move Probability Distribution:
+        - RandomExpectimaxAgent:
+            * Assumes ghosts move randomly.
+            * Equal probability for all legal moves.
+        - DirectionalExpectimaxAgent:
+            * Assumes ghosts follow a strategic pattern.
+            * Probabilities based on ghost strategy (e.g., moving towards Pacman).
+    2. Expectimax Calculation:
+        - RandomExpectimaxAgent:
+            * Averages values of all possible ghost moves equally.
+        - DirectionalExpectimaxAgent:
+            * Weighs values based on the probabilities of ghost moves from getDirectionalGhostProbabilities.
+    3. Adaptation to Ghost Strategies:
+        - RandomExpectimaxAgent:
+            * Does not adapt to specific ghost behaviors.
+        - DirectionalExpectimaxAgent:
+            * Adapts to strategic ghost behaviors (e.g., attacking or fleeing).
+
+@Ideas for Improving Ghost Strategy
+    1. Adaptive Strategy Based on Pacman's Behavior:
+        - Description: Implement a strategy where ghosts adapt their behavior based on Pacman's recent movements. For instance, if Pacman is frequently changing direction, ghosts could predict and intercept the likely next positions of Pacman.
+        - Reason for Improvement: This adaptive strategy makes ghosts more effective by anticipating Pacman's moves rather than reacting purely based on current positions. This can corner Pacman more effectively and reduce Pacman's ability to collect pellets and power-ups easily.
+    2. Coordinated Multi-Ghost Strategy:
+        - Description: Implement coordination between multiple ghosts. For example, one ghost could chase Pacman directly while others try to block escape routes or converge from different directions.
+        - Reason for Improvement: Coordination among ghosts can trap Pacman more efficiently, reducing his maneuverability and making it harder for him to evade the ghosts. This teamwork can increase the pressure on Pacman, forcing mistakes and increasing the chance of capturing him.
